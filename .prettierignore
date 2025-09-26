@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+bun.lock
+package-lock.json
+yarn.lock
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Database files
+*.sql
+*.db
+*.sqlite
+
+# Configuration files
+*.json
+.env*
+.gitignore
+.eslintrc*
+tsconfig.json
+postcss.config.*
+tailwind.config.*
+
+# Documentation
+*.md
+README*
+CHANGELOG*
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp
