@@ -1,8 +1,88 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import DashboardLayout from "@/components/dashboard-layout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import {
+  ArrowLeft,
+  Plus,
+  Search,
+  X,
+  Info,
+  Dumbbell,
+  Zap,
+  Save,
+} from "lucide-react";
+import Link from "next/link";
+
+interface Exercise {
+  id: string;
+  name: string;
+  description?: string;
+  muscle_groups: string[];
+  equipment: string;
+  difficulty_level: string;
+  instructions?: string;
+}
+
+interface WorkoutExercise {
+  id?: string;
+  exercise_id: string;
+  exercise: Exercise;
+  sets: number;
+  reps: string;
+  weight_kg?: number;
+  rest_seconds?: number;
+  notes?: string;
+  order_index: number;
+}
+
+interface WorkoutSession {
+  id: string;
+  name: string;
+  description?: string;
+  day_of_week: number;
+  week_number: number;
+  workout_plan_id: string;
+}
+
+// Common workout presets
+const WORKOUT_PRESETS = [
+  { label: "3x10", sets: 3, reps: "10", rest: 60 },
+  { label: "4x8", sets: 4, reps: "8", rest: 90 },
+  { label: "5x5", sets: 5, reps: "5", rest: 120 },
+  { label: "3x8-12", sets: 3, reps: "8-12", rest: 60 },
+  { label: "4x6-8", sets: 4, reps: "6-8", rest: 90 },
+];
 
 function ExercisePreview({ exercise }: { exercise: Exercise }) {
   return (
@@ -69,75 +149,15 @@ function ExercisePreview({ exercise }: { exercise: Exercise }) {
     </Dialog>
   );
 }
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import DashboardLayout from "@/components/dashboard-layout";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Search, X, Info, Dumbbell, Zap } from "lucide-react";
 
-// Common workout presets
-const WORKOUT_PRESETS = [
-  { label: "3x10", sets: 3, reps: "10", rest: 60 },
-  { label: "4x8", sets: 4, reps: "8", rest: 90 },
-  { label: "5x5", sets: 5, reps: "5", rest: 120 },
-  { label: "3x8-12", sets: 3, reps: "8-12", rest: 60 },
-  { label: "4x6-8", sets: 4, reps: "6-8", rest: 90 },
-];
-import Link from "next/link";
-
-interface Exercise {
-  id: string;
-  name: string;
-  description?: string;
-  muscle_groups: string[];
-  equipment: string;
-  difficulty_level: string;
-  instructions?: string;
-}
-
-interface WorkoutExercise {
-  exercise_id: string;
-  exercise: Exercise;
-  sets: number;
-  reps: string;
-  weight_kg?: number;
-  rest_seconds?: number;
-  notes?: string;
-  order_index: number;
-}
-
-export default function NewWorkoutSessionPage({
+export default function EditWorkoutSessionPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; sessionId: string }>;
 }) {
   const [workoutPlanId, setWorkoutPlanId] = useState<string>("");
+  const [sessionId, setSessionId] = useState<string>("");
+  const [session, setSession] = useState<WorkoutSession | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -149,7 +169,8 @@ export default function NewWorkoutSessionPage({
     [],
   );
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
@@ -159,22 +180,89 @@ export default function NewWorkoutSessionPage({
     const getParams = async () => {
       const resolvedParams = await params;
       setWorkoutPlanId(resolvedParams.id);
+      setSessionId(resolvedParams.sessionId);
     };
     getParams();
   }, [params]);
 
   useEffect(() => {
-    const fetchExercises = async () => {
-      const { data } = await supabase
-        .from("exercises")
-        .select("*")
-        .order("name");
+    if (!workoutPlanId || !sessionId) return;
 
-      if (data) setExercises(data);
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (error || !data?.user) {
+          router.push("/auth/login");
+          return;
+        }
+
+        // Fetch session data with exercises
+        const { data: sessionData, error: sessionError } = await supabase
+          .from("workout_sessions")
+          .select(
+            `
+            *,
+            workout_exercises(
+              *,
+              exercise:exercises(*)
+            )
+          `,
+          )
+          .eq("id", sessionId)
+          .eq("workout_plan_id", workoutPlanId)
+          .single();
+
+        if (sessionError || !sessionData) {
+          throw new Error("Session not found");
+        }
+
+        setSession(sessionData);
+        setFormData({
+          name: sessionData.name,
+          description: sessionData.description || "",
+          day_of_week: sessionData.day_of_week.toString(),
+          week_number: sessionData.week_number.toString(),
+        });
+
+        // Set selected exercises
+        const sortedExercises =
+          sessionData.workout_exercises?.sort(
+            (a: WorkoutExercise, b: WorkoutExercise) =>
+              a.order_index - b.order_index,
+          ) || [];
+
+        setSelectedExercises(
+          sortedExercises.map((we: WorkoutExercise) => ({
+            id: we.id,
+            exercise_id: we.exercise_id,
+            exercise: we.exercise,
+            sets: we.sets,
+            reps: we.reps,
+            weight_kg: we.weight_kg,
+            rest_seconds: we.rest_seconds,
+            notes: we.notes,
+            order_index: we.order_index,
+          })),
+        );
+
+        // Fetch all available exercises
+        const { data: exercisesData, error: exercisesError } = await supabase
+          .from("exercises")
+          .select("*")
+          .order("name");
+
+        if (exercisesError) throw exercisesError;
+        if (exercisesData) setExercises(exercisesData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    fetchExercises();
-  }, [supabase]);
+    fetchData();
+  }, [workoutPlanId, sessionId, supabase, router]);
 
   const filteredExercises = exercises.filter(
     (exercise) =>
@@ -232,7 +320,7 @@ export default function NewWorkoutSessionPage({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsSaving(true);
     setError(null);
 
     try {
@@ -241,25 +329,31 @@ export default function NewWorkoutSessionPage({
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Create workout session
-      const { data: session, error: sessionError } = await supabase
+      // Update workout session
+      const { error: sessionError } = await supabase
         .from("workout_sessions")
-        .insert({
-          workout_plan_id: workoutPlanId,
+        .update({
           name: formData.name,
           description: formData.description,
-          day_of_week: Number.parseInt(formData.day_of_week),
-          week_number: Number.parseInt(formData.week_number),
+          day_of_week: parseInt(formData.day_of_week),
+          week_number: parseInt(formData.week_number),
         })
-        .select()
-        .single();
+        .eq("id", sessionId);
 
       if (sessionError) throw sessionError;
 
-      // Add exercises to session
+      // Delete existing workout exercises
+      const { error: deleteError } = await supabase
+        .from("workout_exercises")
+        .delete()
+        .eq("workout_session_id", sessionId);
+
+      if (deleteError) throw deleteError;
+
+      // Add new exercises to session
       if (selectedExercises.length > 0) {
         const workoutExercises = selectedExercises.map((se) => ({
-          workout_session_id: session.id,
+          workout_session_id: sessionId,
           exercise_id: se.exercise_id,
           sets: se.sets,
           reps: se.reps,
@@ -276,13 +370,43 @@ export default function NewWorkoutSessionPage({
         if (exercisesError) throw exercisesError;
       }
 
-      router.push(`/dashboard/workouts/${workoutPlanId}`);
+      router.push(`/dashboard/workouts/${workoutPlanId}/sessions/${sessionId}`);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading session...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error && !session) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <p className="text-destructive mb-4">{error}</p>
+            <Button asChild>
+              <Link href={`/dashboard/workouts/${workoutPlanId}`}>
+                Back to Workout Plan
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -290,16 +414,18 @@ export default function NewWorkoutSessionPage({
         {/* Header */}
         <div className="flex items-start gap-4">
           <Button variant="ghost" size="sm" className="mt-1" asChild>
-            <Link href={`/dashboard/workouts/${workoutPlanId}`}>
+            <Link
+              href={`/dashboard/workouts/${workoutPlanId}/sessions/${sessionId}`}
+            >
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              Create Workout Session
+              Edit Workout Session
             </h1>
             <p className="text-muted-foreground">
-              Add a new training session to your workout plan
+              Modify your training session details and exercises
             </p>
           </div>
         </div>
@@ -310,7 +436,7 @@ export default function NewWorkoutSessionPage({
             <CardHeader>
               <CardTitle>Session Details</CardTitle>
               <CardDescription>
-                Configure the basic information for this workout session
+                Update the basic information for this workout session
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -550,7 +676,7 @@ export default function NewWorkoutSessionPage({
                             value={workoutExercise.sets}
                             onChange={(e) =>
                               updateExercise(workoutExercise.exercise_id, {
-                                sets: Number.parseInt(e.target.value) || 1,
+                                sets: parseInt(e.target.value) || 1,
                               })
                             }
                             className="h-8"
@@ -582,7 +708,7 @@ export default function NewWorkoutSessionPage({
                             onChange={(e) =>
                               updateExercise(workoutExercise.exercise_id, {
                                 weight_kg: e.target.value
-                                  ? Number.parseFloat(e.target.value)
+                                  ? parseFloat(e.target.value)
                                   : undefined,
                               })
                             }
@@ -597,7 +723,7 @@ export default function NewWorkoutSessionPage({
                             onChange={(e) =>
                               updateExercise(workoutExercise.exercise_id, {
                                 rest_seconds:
-                                  Number.parseInt(e.target.value) || undefined,
+                                  parseInt(e.target.value) || undefined,
                               })
                             }
                             className="h-8"
@@ -646,14 +772,16 @@ export default function NewWorkoutSessionPage({
 
           {/* Actions */}
           <div className="flex items-center gap-4">
-            <Button
-              type="submit"
-              disabled={isLoading || selectedExercises.length === 0}
-            >
-              {isLoading ? "Creating..." : "Create Session"}
+            <Button type="submit" disabled={isSaving}>
+              <Save className="h-4 w-4 mr-2" />
+              {isSaving ? "Saving..." : "Save Changes"}
             </Button>
             <Button type="button" variant="outline" asChild>
-              <Link href={`/dashboard/workouts/${workoutPlanId}`}>Cancel</Link>
+              <Link
+                href={`/dashboard/workouts/${workoutPlanId}/sessions/${sessionId}`}
+              >
+                Cancel
+              </Link>
             </Button>
           </div>
         </form>

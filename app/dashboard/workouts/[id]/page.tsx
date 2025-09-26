@@ -76,8 +76,8 @@ export default async function WorkoutPlanPage({
     redirect("/auth/login");
   }
 
-  // Get workout plan with sessions and exercises
-  const { data: workoutPlan } = await supabase
+  // Get workout plan with sessions and exercises (simplified query)
+  const { data: workoutPlan, error: workoutPlanError } = await supabase
     .from("workout_plans")
     .select(
       `
@@ -88,10 +88,6 @@ export default async function WorkoutPlanPage({
           *,
           exercise:exercises(*)
         )
-      ),
-      member_assignments(
-        count,
-        member:profiles!member_assignments_member_id_fkey(full_name)
       )
     `,
     )
@@ -99,7 +95,29 @@ export default async function WorkoutPlanPage({
     .eq("trainer_id", data.user.id)
     .single();
 
+  // Get member assignments separately to avoid complex join issues
+  const { data: memberAssignments } = await supabase
+    .from("member_assignments")
+    .select(
+      `
+      *,
+      member:profiles!member_assignments_member_id_fkey(full_name)
+    `,
+    )
+    .eq("workout_plan_id", id);
+
+  if (workoutPlanError) {
+    console.error("Workout plan query error:", workoutPlanError);
+    redirect("/dashboard/workouts");
+  }
+
   if (!workoutPlan) {
+    console.error(
+      "Workout plan not found for id:",
+      id,
+      "trainer_id:",
+      data.user.id,
+    );
     redirect("/dashboard/workouts");
   }
 
@@ -117,32 +135,37 @@ export default async function WorkoutPlanPage({
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" asChild>
+        <div className="space-y-4">
+          <div className="flex items-start gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-1 flex-shrink-0"
+              asChild
+            >
               <Link href="/dashboard/workouts">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
                 {workoutPlan.name}
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-sm sm:text-base text-muted-foreground mt-1">
                 {workoutPlan.description || "No description provided"}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="outline">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2 sm:ml-14">
+            <Button asChild variant="outline" className="w-full sm:w-auto">
               <Link href={`/dashboard/workouts/${id}/edit`}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Plan
               </Link>
             </Button>
-            <Button asChild>
+            <Button asChild className="w-full sm:w-auto">
               <Link href={`/dashboard/workouts/${id}/sessions/new`}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Session
@@ -152,16 +175,16 @@ export default async function WorkoutPlanPage({
         </div>
 
         {/* Plan Overview */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4">
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
+            <CardHeader className="pb-2 sm:pb-3">
+              <CardTitle className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                 Duration
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="pt-0">
+              <div className="text-xl sm:text-2xl font-bold">
                 {workoutPlan.duration_weeks}
               </div>
               <p className="text-xs text-muted-foreground">weeks</p>
@@ -169,29 +192,29 @@ export default async function WorkoutPlanPage({
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Users className="h-4 w-4" />
+            <CardHeader className="pb-2 sm:pb-3">
+              <CardTitle className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                <Users className="h-3 w-3 sm:h-4 sm:w-4" />
                 Assigned
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {workoutPlan.member_assignments?.[0]?.count || 0}
+            <CardContent className="pt-0">
+              <div className="text-xl sm:text-2xl font-bold">
+                {memberAssignments?.length || 0}
               </div>
               <p className="text-xs text-muted-foreground">members</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Dumbbell className="h-4 w-4" />
+            <CardHeader className="pb-2 sm:pb-3">
+              <CardTitle className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                <Dumbbell className="h-3 w-3 sm:h-4 sm:w-4" />
                 Sessions
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="pt-0">
+              <div className="text-xl sm:text-2xl font-bold">
                 {workoutPlan.workout_sessions?.length || 0}
               </div>
               <p className="text-xs text-muted-foreground">workouts</p>
@@ -199,10 +222,12 @@ export default async function WorkoutPlanPage({
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Difficulty</CardTitle>
+            <CardHeader className="pb-2 sm:pb-3">
+              <CardTitle className="text-xs sm:text-sm font-medium">
+                Difficulty
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               <Badge
                 variant={
                   workoutPlan.difficulty_level === "beginner"
@@ -263,11 +288,11 @@ export default async function WorkoutPlanPage({
                 ).map(([week, sessions]) => (
                   <div key={week} className="space-y-3">
                     <h3 className="text-lg font-medium">Week {week}</h3>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                       {sessions.map((session: WorkoutSession) => (
                         <Card
                           key={session.id}
-                          className="hover:shadow-md transition-shadow"
+                          className="hover:shadow-md transition-shadow flex flex-col"
                         >
                           <CardHeader className="pb-3">
                             <CardTitle className="text-base">
@@ -278,49 +303,53 @@ export default async function WorkoutPlanPage({
                               {session.workout_exercises?.length || 0} exercises
                             </CardDescription>
                           </CardHeader>
-                          <CardContent className="space-y-3">
-                            {session.description && (
-                              <p className="text-sm text-muted-foreground line-clamp-2">
-                                {session.description}
-                              </p>
-                            )}
-
-                            <div className="space-y-2">
-                              {session.workout_exercises
-                                ?.slice(0, 3)
-                                .map((we: WorkoutExercise) => (
-                                  <div
-                                    key={we.id}
-                                    className="flex items-center gap-2 text-sm"
-                                  >
-                                    <div className="w-2 h-2 bg-primary rounded-full" />
-                                    <span className="flex-1">
-                                      {we.exercise?.name}
-                                    </span>
-                                    <span className="text-muted-foreground">
-                                      {we.sets}x{we.reps}
-                                    </span>
-                                  </div>
-                                ))}
-                              {(session.workout_exercises?.length || 0) > 3 && (
-                                <p className="text-xs text-muted-foreground">
-                                  +
-                                  {(session.workout_exercises?.length || 0) - 3}{" "}
-                                  more exercises
+                          <CardContent className="flex-1 flex flex-col space-y-3">
+                            <div className="flex-1 space-y-3">
+                              {session.description && (
+                                <p className="text-sm text-muted-foreground line-clamp-2">
+                                  {session.description}
                                 </p>
                               )}
+
+                              <div className="space-y-2">
+                                {session.workout_exercises
+                                  ?.slice(0, 3)
+                                  .map((we: WorkoutExercise) => (
+                                    <div
+                                      key={we.id}
+                                      className="flex items-center gap-2 text-sm"
+                                    >
+                                      <div className="w-2 h-2 bg-primary rounded-full" />
+                                      <span className="flex-1">
+                                        {we.exercise?.name}
+                                      </span>
+                                      <span className="text-muted-foreground">
+                                        {we.sets}x{we.reps}
+                                      </span>
+                                    </div>
+                                  ))}
+                                {(session.workout_exercises?.length || 0) >
+                                  3 && (
+                                  <p className="text-xs text-muted-foreground">
+                                    +
+                                    {(session.workout_exercises?.length || 0) -
+                                      3}{" "}
+                                    more exercises
+                                  </p>
+                                )}
+                              </div>
                             </div>
 
                             <Button
                               asChild
                               variant="outline"
                               size="sm"
-                              className="w-full bg-transparent"
+                              className="w-full bg-transparent mt-auto"
                             >
                               <Link
                                 href={`/dashboard/workouts/${id}/sessions/${session.id}`}
                               >
-                                View Session
+                                View Details
                               </Link>
                             </Button>
                           </CardContent>
@@ -351,40 +380,39 @@ export default async function WorkoutPlanPage({
         </Card>
 
         {/* Assigned Members */}
-        {workoutPlan.member_assignments &&
-          workoutPlan.member_assignments.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Assigned Members</CardTitle>
-                <CardDescription>
-                  Members currently following this workout plan
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {workoutPlan.member_assignments.map(
-                    (assignment: MemberAssignment, index: number) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-muted/50"
-                      >
-                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-sm font-medium text-primary">
-                            {assignment.member?.full_name
-                              ?.charAt(0)
-                              .toUpperCase()}
-                          </span>
-                        </div>
-                        <span className="font-medium">
-                          {assignment.member?.full_name}
+        {memberAssignments && memberAssignments.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Assigned Members</CardTitle>
+              <CardDescription>
+                Members currently following this workout plan
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {memberAssignments.map(
+                  (assignment: MemberAssignment, index: number) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-3 rounded-lg bg-muted/50"
+                    >
+                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span className="text-sm font-medium text-primary">
+                          {assignment.member?.full_name
+                            ?.charAt(0)
+                            .toUpperCase()}
                         </span>
                       </div>
-                    ),
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                      <span className="font-medium">
+                        {assignment.member?.full_name}
+                      </span>
+                    </div>
+                  ),
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </DashboardLayout>
   );
