@@ -12,6 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Dumbbell,
   Search,
   Plus,
@@ -20,6 +27,9 @@ import {
   MoreHorizontal,
   Edit,
   Copy,
+  Eye,
+  UserPlus,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -58,7 +68,7 @@ export default async function WorkoutPlansPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
               Workout Plans
@@ -67,7 +77,7 @@ export default async function WorkoutPlansPage() {
               Create and manage your training programs
             </p>
           </div>
-          <Button asChild>
+          <Button asChild className="mt-1">
             <Link href="/dashboard/workouts/new">
               <Plus className="h-4 w-4 mr-2" />
               Create Plan
@@ -103,9 +113,41 @@ export default async function WorkoutPlansPage() {
                       {plan.description || "No description provided"}
                     </CardDescription>
                   </div>
-                  <Button variant="ghost" size="sm">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/workouts/${plan.id}`}>
+                          <Eye className="h-4 w-4" />
+                          View Plan
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/workouts/${plan.id}/edit`}>
+                          <Edit className="h-4 w-4" />
+                          Edit Plan
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Copy className="h-4 w-4" />
+                        Duplicate Plan
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <UserPlus className="h-4 w-4" />
+                        Assign to Member
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="text-red-600">
+                        <Trash2 className="h-4 w-4" />
+                        Delete Plan
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -120,23 +162,27 @@ export default async function WorkoutPlansPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Badge
-                    variant={
-                      plan.difficulty_level === "beginner"
-                        ? "secondary"
-                        : plan.difficulty_level === "intermediate"
-                          ? "default"
-                          : "destructive"
-                    }
-                  >
-                    {plan.difficulty_level}
-                  </Badge>
-                  {plan.goals?.map((goal: string) => (
-                    <Badge key={goal} variant="outline" className="text-xs">
-                      {goal}
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <Badge
+                      variant={
+                        plan.difficulty_level === "beginner"
+                          ? "secondary"
+                          : plan.difficulty_level === "intermediate"
+                            ? "default"
+                            : "destructive"
+                      }
+                    >
+                      {plan.difficulty_level}
                     </Badge>
-                  ))}
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {plan.goals?.map((goal: string) => (
+                      <Badge key={goal} variant="outline" className="text-xs">
+                        {goal}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2 pt-2">

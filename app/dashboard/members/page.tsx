@@ -58,14 +58,14 @@ export default async function MembersPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Members</h1>
             <p className="text-muted-foreground">
               Manage your assigned members and their progress
             </p>
           </div>
-          <Button asChild>
+          <Button asChild className="mt-1">
             <Link href="/dashboard/members/assign">
               <UserPlus className="h-4 w-4 mr-2" />
               Assign Member

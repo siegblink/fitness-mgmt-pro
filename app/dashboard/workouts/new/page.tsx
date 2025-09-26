@@ -115,8 +115,8 @@ export default function NewWorkoutPlanPage() {
     <DashboardLayout>
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
+        <div className="flex items-start gap-4">
+          <Button variant="ghost" size="sm" className="mt-1" asChild>
             <Link href="/dashboard/workouts">
               <ArrowLeft className="h-4 w-4" />
             </Link>
@@ -266,7 +266,7 @@ export default function NewWorkoutPlanPage() {
               {formData.goals.length > 0 && (
                 <div className="space-y-2">
                   <Label>Selected Goals:</Label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 mt-1.5">
                     {formData.goals.map((goal) => (
                       <Badge key={goal} variant="secondary" className="gap-1">
                         {goal}

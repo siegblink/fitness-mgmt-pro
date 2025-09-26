@@ -77,14 +77,14 @@ export default async function DashboardPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
             <p className="text-muted-foreground">
               Welcome back, {profile?.full_name || "Trainer"}
             </p>
           </div>
-          <Button asChild>
+          <Button asChild className="mt-1">
             <Link href="/dashboard/workouts/new">
               <Plus className="h-4 w-4 mr-2" />
               Create Workout Plan
