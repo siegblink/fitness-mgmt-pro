@@ -113,13 +113,21 @@ export default function AssignMemberPage() {
 
         // Only filter out assigned members if there are any
         if (assignedIds.length > 0) {
-          membersQuery = membersQuery.not("id", "in", assignedIds);
+          // Supabase requires parentheses for the 'in' filter
+          membersQuery = membersQuery.not(
+            "id",
+            "in",
+            `(${assignedIds.join(",")})`,
+          );
         }
 
         const { data: allMembers, error: membersError } = await membersQuery;
 
         if (membersError) {
           console.error("Error fetching members:", membersError);
+          setError(
+            `Failed to fetch members: ${membersError.message || "Unknown error"}`,
+          );
         }
 
         setMembers(allMembers || []);
@@ -179,7 +187,7 @@ export default function AssignMemberPage() {
         .eq("member_id", formData.member_id)
         .eq("trainer_id", formData.trainer_id)
         .eq("status", "active")
-        .single();
+        .maybeSingle();
 
       if (existingAssignment) {
         throw new Error(
@@ -279,15 +287,15 @@ export default function AssignMemberPage() {
                     {filteredMembers.length > 0 ? (
                       filteredMembers.map((member) => (
                         <SelectItem key={member.id} value={member.id}>
-                          {member.full_name}
+                          {member.full_name || member.email || "Unknown Member"}
                         </SelectItem>
                       ))
                     ) : (
-                      <SelectItem value="no-members" disabled>
+                      <div className="p-2 text-sm text-muted-foreground text-center">
                         {memberSearch
                           ? "No members match your search"
                           : "No available members to assign"}
-                      </SelectItem>
+                      </div>
                     )}
                   </SelectContent>
                 </Select>

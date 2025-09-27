@@ -265,7 +265,7 @@ export default async function WorkoutPlanPage({
         {/* Workout Sessions */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between">
               <div>
                 <CardTitle className="text-lg">Workout Sessions</CardTitle>
                 <CardDescription>

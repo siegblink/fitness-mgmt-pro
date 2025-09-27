@@ -268,21 +268,23 @@ export default async function DashboardPage() {
               {workoutPlans?.map((plan) => (
                 <div
                   key={plan.id}
-                  className="flex items-center justify-between p-4 rounded-lg border"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg border"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <div className="flex items-start sm:items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <Dumbbell className="h-5 w-5 text-primary" />
                     </div>
-                    <div>
-                      <h3 className="font-medium">{plan.name}</h3>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium truncate">{plan.name}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {plan.duration_weeks} weeks • {plan.difficulty_level}
+                        {plan.duration_weeks} weeks
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{plan.difficulty_level}</Badge>
+                  <div className="flex items-center gap-2 ml-0 sm:ml-auto pl-0 sm:pl-3">
+                    <Badge variant="outline" className="flex-shrink-0">
+                      {plan.difficulty_level}
+                    </Badge>
                     <Button asChild variant="ghost" size="sm">
                       <Link href={`/dashboard/workouts/${plan.id}`}>View</Link>
                     </Button>
