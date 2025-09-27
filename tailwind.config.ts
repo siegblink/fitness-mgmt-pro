@@ -56,6 +56,62 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      keyframes: {
+        blob: {
+          "0%, 100%": {
+            transform: "translate(0, 0) scale(1)",
+          },
+          "25%": {
+            transform: "translate(20px, -50px) scale(1.1)",
+          },
+          "50%": {
+            transform: "translate(-20px, 20px) scale(0.9)",
+          },
+          "75%": {
+            transform: "translate(50px, 10px) scale(1.05)",
+          },
+        },
+        float: {
+          "0%, 100%": {
+            transform: "translateY(0)",
+          },
+          "50%": {
+            transform: "translateY(-20px)",
+          },
+        },
+        sparkle: {
+          "0%, 100%": {
+            opacity: "0",
+            transform: "scale(0) rotate(0)",
+          },
+          "50%": {
+            opacity: "1",
+            transform: "scale(1) rotate(180deg)",
+          },
+        },
+        "gradient-x": {
+          "0%, 100%": {
+            backgroundPosition: "0% 50%",
+          },
+          "50%": {
+            backgroundPosition: "100% 50%",
+          },
+        },
+      },
+      animation: {
+        blob: "blob 7s infinite",
+        float: "float 6s ease-in-out infinite",
+        sparkle: "sparkle 3s ease-in-out infinite",
+        "gradient-x": "gradient-x 3s ease infinite",
+      },
+      backgroundSize: {
+        "200%": "200% 200%",
+      },
+      animationDelay: {
+        "2000": "2s",
+        "4000": "4s",
+        "6000": "6s",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
