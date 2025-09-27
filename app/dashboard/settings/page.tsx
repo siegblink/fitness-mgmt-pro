@@ -414,7 +414,7 @@ export default async function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start lg:items-center justify-between">
                     <div className="space-y-0.5">
                       <Label className="text-base">Password</Label>
                       <p className="text-sm text-muted-foreground">
@@ -427,7 +427,7 @@ export default async function SettingsPage() {
                     </Button>
                   </div>
                   <Separator />
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start lg:items-center justify-between">
                     <div className="space-y-0.5">
                       <Label className="text-base">
                         Two-Factor Authentication
@@ -439,7 +439,7 @@ export default async function SettingsPage() {
                     <Button variant="outline">Enable 2FA</Button>
                   </div>
                   <Separator />
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start lg:items-center justify-between">
                     <div className="space-y-0.5">
                       <Label className="text-base">Active Sessions</Label>
                       <p className="text-sm text-muted-foreground">
