@@ -93,7 +93,7 @@ function ExercisePreview({ exercise }: { exercise: Exercise }) {
           Details
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {exercise.name}

@@ -138,11 +138,11 @@ export default async function WorkoutPlanPage({
       <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="space-y-4">
-          <div className="flex items-start gap-4">
+          <div className="flex flex-col md:flex-row items-start gap-4">
             <Button
               variant="ghost"
               size="sm"
-              className="mt-1 flex-shrink-0"
+              className="flex-shrink-0"
               asChild
             >
               <Link href="/dashboard/workouts">

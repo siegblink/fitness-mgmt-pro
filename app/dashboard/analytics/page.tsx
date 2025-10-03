@@ -206,7 +206,7 @@ export default function TrainerAnalyticsPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
               Analytics Dashboard
@@ -215,7 +215,7 @@ export default function TrainerAnalyticsPage() {
               Track your members&apos; progress and engagement
             </p>
           </div>
-          <div className="flex items-center gap-4 mt-1">
+          <div className="flex items-center gap-4 md:mt-1">
             <Select value={timeRange} onValueChange={setTimeRange}>
               <SelectTrigger className="w-32">
                 <SelectValue />

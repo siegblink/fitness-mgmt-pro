@@ -77,14 +77,14 @@ export default async function DashboardPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
             <p className="text-muted-foreground">
               Welcome back, {profile?.full_name || "Trainer"}
             </p>
           </div>
-          <Button asChild className="mt-1">
+          <Button asChild className="md:mt-1">
             <Link href="/dashboard/workouts/new">
               <Plus className="h-4 w-4 mr-2" />
               Create Workout Plan
@@ -251,7 +251,7 @@ export default async function DashboardPage() {
         {/* Workout Plans Overview */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex md:items-center justify-between">
               <div>
                 <CardTitle>Your Workout Plans</CardTitle>
                 <CardDescription>

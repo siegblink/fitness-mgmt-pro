@@ -44,10 +44,10 @@ export default async function EditWorkoutPlanPage({
 
   return (
     <DashboardLayout>
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-start gap-4">
-          <Button variant="ghost" size="sm" className="mt-1" asChild>
+          <Button variant="ghost" size="sm" asChild>
             <Link href={`/dashboard/workouts/${id}`}>
               <ArrowLeft className="h-4 w-4" />
             </Link>
