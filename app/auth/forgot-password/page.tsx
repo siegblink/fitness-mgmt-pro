@@ -221,7 +221,7 @@ export default function ForgotPasswordPage() {
                               id="email"
                               type="email"
                               placeholder="john@example.com"
-                              className="text-white placeholder:text-gray-500 h-12"
+                              className="text-white placeholder:text-gray-500"
                               aria-invalid={!!errors.email}
                               {...register("email")}
                             />

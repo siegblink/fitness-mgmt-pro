@@ -202,7 +202,7 @@ export default function LoginPage() {
                             id="email"
                             type="email"
                             placeholder="trainer@example.com"
-                            className="text-white placeholder:text-gray-500 h-12"
+                            className="text-white placeholder:text-gray-500"
                             aria-invalid={!!errors.email}
                             {...register("email")}
                           />
@@ -243,7 +243,7 @@ export default function LoginPage() {
                             id="password"
                             type={showPassword ? "text" : "password"}
                             placeholder="Enter your password"
-                            className="text-white placeholder:text-gray-500 h-12"
+                            className="text-white placeholder:text-gray-500"
                             aria-invalid={!!errors.password}
                             {...register("password")}
                           />

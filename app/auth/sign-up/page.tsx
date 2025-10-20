@@ -265,7 +265,7 @@ export default function SignUpPage() {
                             id="fullName"
                             type="text"
                             placeholder="John Doe"
-                            className="text-white placeholder:text-gray-500 h-12"
+                            className="text-white placeholder:text-gray-500"
                             aria-invalid={!!errors.fullName}
                             {...register("fullName")}
                           />
@@ -297,7 +297,7 @@ export default function SignUpPage() {
                             id="email"
                             type="email"
                             placeholder="john@example.com"
-                            className="text-white placeholder:text-gray-500 h-12"
+                            className="text-white placeholder:text-gray-500"
                             aria-invalid={!!errors.email}
                             {...register("email")}
                           />
@@ -375,7 +375,7 @@ export default function SignUpPage() {
                               id="password"
                               type={showPassword ? "text" : "password"}
                               placeholder="Enter password"
-                              className="text-white placeholder:text-gray-500 h-12"
+                              className="text-white placeholder:text-gray-500"
                               aria-invalid={!!errors.password}
                               {...register("password")}
                             />
@@ -426,7 +426,7 @@ export default function SignUpPage() {
                               id="repeatPassword"
                               type={showRepeatPassword ? "text" : "password"}
                               placeholder="Confirm password"
-                              className="text-white placeholder:text-gray-500 h-12"
+                              className="text-white placeholder:text-gray-500"
                               aria-invalid={!!errors.repeatPassword}
                               {...register("repeatPassword")}
                             />
