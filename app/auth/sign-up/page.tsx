@@ -1,18 +1,26 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Activity,
   ArrowRight,
   Award,
   Dumbbell,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
   Target,
   TrendingUp,
+  User,
   Users,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type React from "react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,8 +29,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 import {
   Select,
   SelectContent,
@@ -30,56 +44,80 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { createClient } from "@/lib/supabase/client";
 
+// Zod validation schema
+const signUpSchema = z
+  .object({
+    fullName: z.string().min(1, "Full name is required"),
+    email: z
+      .string()
+      .min(1, "Email is required")
+      .email("Please enter a valid email address"),
+    role: z.string().min(1, "Please select your role"),
+    password: z
+      .string()
+      .min(1, "Password is required")
+      .min(6, "Password must be at least 6 characters"),
+    repeatPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.repeatPassword, {
+    message: "Passwords do not match",
+    path: ["repeatPassword"],
+  });
+
+type SignUpFormData = z.infer<typeof signUpSchema>;
+
 export default function SignUpPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [repeatPassword, setRepeatPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+    watch,
+  } = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      role: "",
+      password: "",
+      repeatPassword: "",
+    },
+  });
+
+  const roleValue = watch("role");
+
+  const onSubmit = async (data: SignUpFormData) => {
     const supabase = createClient();
-    setIsLoading(true);
-    setError(null);
-
-    if (password !== repeatPassword) {
-      setError("Passwords do not match");
-      setIsLoading(false);
-      return;
-    }
-
-    if (!role) {
-      setError("Please select your role");
-      setIsLoading(false);
-      return;
-    }
+    setServerError(null);
 
     try {
       const { error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: data.email,
+        password: data.password,
         options: {
           emailRedirectTo:
             process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
             `${window.location.origin}/dashboard`,
           data: {
-            full_name: fullName,
-            role: role,
+            full_name: data.fullName,
+            role: data.role,
           },
         },
       });
       if (error) throw error;
       router.push("/auth/sign-up-success");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
+      setServerError(
+        error instanceof Error ? error.message : "An error occurred",
+      );
     }
   };
 
@@ -107,9 +145,9 @@ export default function SignUpPage() {
       </div>
 
       <div className="relative flex min-h-screen items-center justify-center p-6">
-        <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-8 items-center">
+        <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-8">
           {/* Left side - Branding */}
-          <div className="hidden lg:flex flex-col justify-center space-y-8 text-white">
+          <div className="hidden lg:flex flex-col space-y-8 text-white">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
                 <div className="relative">
@@ -205,61 +243,87 @@ export default function SignUpPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSignUp}>
-                  <div className="flex flex-col gap-5">
-                    <div className="space-y-2">
-                      <Label
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <div className="flex flex-col gap-6">
+                    {/* Full Name Field */}
+                    <Field data-invalid={!!errors.fullName}>
+                      <FieldLabel
                         htmlFor="fullName"
                         className="text-gray-300 text-sm font-medium"
                       >
                         Full Name
-                      </Label>
+                      </FieldLabel>
                       <div className="relative group">
                         <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-25 group-hover:opacity-40 transition duration-300" />
-                        <Input
-                          id="fullName"
-                          type="text"
-                          placeholder="John Doe"
-                          required
-                          value={fullName}
-                          onChange={(e) => setFullName(e.target.value)}
-                          className="relative bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all h-12"
-                        />
+                        <InputGroup className="relative bg-gray-800/50 border-gray-700 focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-500/20">
+                          <InputGroupAddon align="inline-start">
+                            <InputGroupText>
+                              <User className="w-4 h-4 text-gray-400" />
+                            </InputGroupText>
+                          </InputGroupAddon>
+                          <InputGroupInput
+                            id="fullName"
+                            type="text"
+                            placeholder="John Doe"
+                            className="text-white placeholder:text-gray-500 h-12"
+                            aria-invalid={!!errors.fullName}
+                            {...register("fullName")}
+                          />
+                        </InputGroup>
                       </div>
-                    </div>
+                      <FieldError
+                        errors={[errors.fullName]}
+                        className="text-red-400"
+                      />
+                    </Field>
 
-                    <div className="space-y-2">
-                      <Label
+                    {/* Email Field */}
+                    <Field data-invalid={!!errors.email}>
+                      <FieldLabel
                         htmlFor="email"
                         className="text-gray-300 text-sm font-medium"
                       >
                         Email Address
-                      </Label>
+                      </FieldLabel>
                       <div className="relative group">
                         <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-25 group-hover:opacity-40 transition duration-300" />
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="john@example.com"
-                          required
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="relative bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all h-12"
-                        />
+                        <InputGroup className="relative bg-gray-800/50 border-gray-700 focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-500/20">
+                          <InputGroupAddon align="inline-start">
+                            <InputGroupText>
+                              <Mail className="w-4 h-4 text-gray-400" />
+                            </InputGroupText>
+                          </InputGroupAddon>
+                          <InputGroupInput
+                            id="email"
+                            type="email"
+                            placeholder="john@example.com"
+                            className="text-white placeholder:text-gray-500 h-12"
+                            aria-invalid={!!errors.email}
+                            {...register("email")}
+                          />
+                        </InputGroup>
                       </div>
-                    </div>
+                      <FieldError
+                        errors={[errors.email]}
+                        className="text-red-400"
+                      />
+                    </Field>
 
-                    <div className="space-y-2">
-                      <Label
+                    {/* Role Field */}
+                    <Field data-invalid={!!errors.role}>
+                      <FieldLabel
                         htmlFor="role"
                         className="text-gray-300 text-sm font-medium"
                       >
                         I am a...
-                      </Label>
+                      </FieldLabel>
                       <div className="relative group">
                         <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-25 group-hover:opacity-40 transition duration-300" />
-                        <Select value={role} onValueChange={setRole}>
-                          <SelectTrigger className="relative bg-gray-800/50 border-gray-700 text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all h-12 [&>span]:text-gray-500 data-[state=open]:border-purple-500">
+                        <Select
+                          value={roleValue}
+                          onValueChange={(value) => setValue("role", value)}
+                        >
+                          <SelectTrigger className="relative bg-gray-800/50 border-gray-700 text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all [&>span]:text-gray-500 data-[state=open]:border-purple-500">
                             <SelectValue placeholder="Select your role" />
                           </SelectTrigger>
                           <SelectContent className="bg-gray-900 border-gray-700">
@@ -284,64 +348,141 @@ export default function SignUpPage() {
                           </SelectContent>
                         </Select>
                       </div>
-                    </div>
+                      <FieldError
+                        errors={[errors.role]}
+                        className="text-red-400"
+                      />
+                    </Field>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-2">
-                        <Label
+                    {/* Password Fields */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Field data-invalid={!!errors.password}>
+                        <FieldLabel
                           htmlFor="password"
                           className="text-gray-300 text-sm font-medium"
                         >
                           Password
-                        </Label>
+                        </FieldLabel>
                         <div className="relative group">
                           <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-25 group-hover:opacity-40 transition duration-300" />
-                          <Input
-                            id="password"
-                            type="password"
-                            required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="relative bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all h-12"
-                          />
+                          <InputGroup className="relative bg-gray-800/50 border-gray-700 focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-500/20">
+                            <InputGroupAddon align="inline-start">
+                              <InputGroupText>
+                                <Lock className="w-4 h-4 text-gray-400" />
+                              </InputGroupText>
+                            </InputGroupAddon>
+                            <InputGroupInput
+                              id="password"
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Enter password"
+                              className="text-white placeholder:text-gray-500 h-12"
+                              aria-invalid={!!errors.password}
+                              {...register("password")}
+                            />
+                            <InputGroupAddon align="inline-end">
+                              <InputGroupButton
+                                type="button"
+                                size="icon-sm"
+                                tabIndex={-1}
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="text-gray-400 hover:text-white hover:bg-gray-500/50"
+                                aria-label={
+                                  showPassword
+                                    ? "Hide password"
+                                    : "Show password"
+                                }
+                              >
+                                {showPassword ? (
+                                  <EyeOff className="w-4 h-4" />
+                                ) : (
+                                  <Eye className="w-4 h-4" />
+                                )}
+                              </InputGroupButton>
+                            </InputGroupAddon>
+                          </InputGroup>
                         </div>
-                      </div>
+                        <FieldError
+                          errors={[errors.password]}
+                          className="text-red-400"
+                        />
+                      </Field>
 
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="repeat-password"
+                      <Field data-invalid={!!errors.repeatPassword}>
+                        <FieldLabel
+                          htmlFor="repeatPassword"
                           className="text-gray-300 text-sm font-medium"
                         >
                           Confirm Password
-                        </Label>
+                        </FieldLabel>
                         <div className="relative group">
                           <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-25 group-hover:opacity-40 transition duration-300" />
-                          <Input
-                            id="repeat-password"
-                            type="password"
-                            required
-                            value={repeatPassword}
-                            onChange={(e) => setRepeatPassword(e.target.value)}
-                            className="relative bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all h-12"
-                          />
+                          <InputGroup className="relative bg-gray-800/50 border-gray-700 focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-500/20">
+                            <InputGroupAddon align="inline-start">
+                              <InputGroupText>
+                                <Lock className="w-4 h-4 text-gray-400" />
+                              </InputGroupText>
+                            </InputGroupAddon>
+                            <InputGroupInput
+                              id="repeatPassword"
+                              type={showRepeatPassword ? "text" : "password"}
+                              placeholder="Confirm password"
+                              className="text-white placeholder:text-gray-500 h-12"
+                              aria-invalid={!!errors.repeatPassword}
+                              {...register("repeatPassword")}
+                            />
+                            <InputGroupAddon align="inline-end">
+                              <InputGroupButton
+                                type="button"
+                                size="icon-sm"
+                                tabIndex={-1}
+                                onClick={() =>
+                                  setShowRepeatPassword(!showRepeatPassword)
+                                }
+                                className="text-gray-400 hover:text-white hover:bg-gray-500/50"
+                                aria-label={
+                                  showRepeatPassword
+                                    ? "Hide password"
+                                    : "Show password"
+                                }
+                              >
+                                {showRepeatPassword ? (
+                                  <EyeOff className="w-4 h-4" />
+                                ) : (
+                                  <Eye className="w-4 h-4" />
+                                )}
+                              </InputGroupButton>
+                            </InputGroupAddon>
+                          </InputGroup>
                         </div>
-                      </div>
+                        <FieldError
+                          errors={[errors.repeatPassword]}
+                          className="text-red-400"
+                        />
+                      </Field>
                     </div>
 
-                    {error && (
-                      <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/50">
-                        <p className="text-sm text-red-400">{error}</p>
-                      </div>
+                    {/* Server Error */}
+                    {serverError && (
+                      <Alert
+                        variant="destructive"
+                        className="bg-red-500/10 border-red-500/50"
+                      >
+                        <AlertDescription className="text-red-400">
+                          {serverError}
+                        </AlertDescription>
+                      </Alert>
                     )}
 
+                    {/* Submit Button */}
                     <Button
                       type="submit"
-                      className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
-                      disabled={isLoading}
+                      size="default"
+                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
+                      disabled={isSubmitting}
                     >
-                      {isLoading ? (
+                      {isSubmitting ? (
                         <span className="flex items-center justify-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <Spinner className="w-4 h-4" />
                           Creating account...
                         </span>
                       ) : (
@@ -351,20 +492,7 @@ export default function SignUpPage() {
                         </span>
                       )}
                     </Button>
-                  </div>
 
-                  <div className="relative mt-8">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-700" />
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="bg-gray-900/50 px-4 text-gray-400">
-                        Or
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="text-center">
                     <p className="text-gray-400">
                       Already have an account?{" "}
                       <Link

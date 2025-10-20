@@ -1,16 +1,23 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Activity,
   ArrowRight,
   Dumbbell,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
   TrendingUp,
   Users,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type React from "react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,34 +26,63 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
+import { Spinner } from "@/components/ui/spinner";
 import { createClient } from "@/lib/supabase/client";
 
+// Zod validation schema
+const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .min(6, "Password must be at least 6 characters"),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (data: LoginFormData) => {
     const supabase = createClient();
-    setIsLoading(true);
-    setError(null);
+    setServerError(null);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: data.email,
+        password: data.password,
       });
       if (error) throw error;
       router.push("/dashboard");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
+      setServerError(
+        error instanceof Error ? error.message : "An error occurred",
+      );
     }
   };
 
@@ -144,70 +180,121 @@ export default function LoginPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleLogin}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                   <div className="flex flex-col gap-6">
-                    <div className="space-y-2">
-                      <Label
+                    {/* Email Field */}
+                    <Field data-invalid={!!errors.email}>
+                      <FieldLabel
                         htmlFor="email"
                         className="text-gray-300 text-sm font-medium"
                       >
                         Email Address
-                      </Label>
+                      </FieldLabel>
                       <div className="relative group">
                         <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg blur opacity-25 group-hover:opacity-40 transition duration-300" />
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="trainer@example.com"
-                          required
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="relative bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all h-12"
-                        />
+                        <InputGroup className="relative bg-gray-800/50 border-gray-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20">
+                          <InputGroupAddon align="inline-start">
+                            <InputGroupText>
+                              <Mail className="w-4 h-4 text-gray-400" />
+                            </InputGroupText>
+                          </InputGroupAddon>
+                          <InputGroupInput
+                            id="email"
+                            type="email"
+                            placeholder="trainer@example.com"
+                            className="text-white placeholder:text-gray-500 h-12"
+                            aria-invalid={!!errors.email}
+                            {...register("email")}
+                          />
+                        </InputGroup>
                       </div>
-                    </div>
-                    <div className="space-y-2">
+                      <FieldError
+                        errors={[errors.email]}
+                        className="text-red-400"
+                      />
+                    </Field>
+
+                    {/* Password Field */}
+                    <Field data-invalid={!!errors.password}>
                       <div className="flex items-center justify-between">
-                        <Label
+                        <FieldLabel
                           htmlFor="password"
                           className="text-gray-300 text-sm font-medium"
                         >
                           Password
-                        </Label>
+                        </FieldLabel>
                         <Link
                           href="/auth/forgot-password"
                           className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                          tabIndex={-1}
                         >
                           Forgot password?
                         </Link>
                       </div>
                       <div className="relative group">
                         <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg blur opacity-25 group-hover:opacity-40 transition duration-300" />
-                        <Input
-                          id="password"
-                          type="password"
-                          required
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          className="relative bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all h-12"
-                        />
+                        <InputGroup className="relative bg-gray-800/50 border-gray-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20">
+                          <InputGroupAddon align="inline-start">
+                            <InputGroupText>
+                              <Lock className="w-4 h-4 text-gray-400" />
+                            </InputGroupText>
+                          </InputGroupAddon>
+                          <InputGroupInput
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Enter your password"
+                            className="text-white placeholder:text-gray-500 h-12"
+                            aria-invalid={!!errors.password}
+                            {...register("password")}
+                          />
+                          <InputGroupAddon align="inline-end">
+                            <InputGroupButton
+                              type="button"
+                              size="icon-sm"
+                              tabIndex={-1}
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="text-gray-400 hover:text-white hover:bg-gray-500/50"
+                              aria-label={
+                                showPassword ? "Hide password" : "Show password"
+                              }
+                            >
+                              {showPassword ? (
+                                <EyeOff className="w-4 h-4" />
+                              ) : (
+                                <Eye className="w-4 h-4" />
+                              )}
+                            </InputGroupButton>
+                          </InputGroupAddon>
+                        </InputGroup>
                       </div>
-                    </div>
+                      <FieldError
+                        errors={[errors.password]}
+                        className="text-red-400"
+                      />
+                    </Field>
 
-                    {error && (
-                      <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/50">
-                        <p className="text-sm text-red-400">{error}</p>
-                      </div>
+                    {/* Server Error */}
+                    {serverError && (
+                      <Alert
+                        variant="destructive"
+                        className="bg-red-500/10 border-red-500/50"
+                      >
+                        <AlertDescription className="text-red-400">
+                          {serverError}
+                        </AlertDescription>
+                      </Alert>
                     )}
 
+                    {/* Submit Button */}
                     <Button
                       type="submit"
-                      className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
-                      disabled={isLoading}
+                      size="default"
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
+                      disabled={isSubmitting}
                     >
-                      {isLoading ? (
+                      {isSubmitting ? (
                         <span className="flex items-center justify-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <Spinner className="w-4 h-4" />
                           Signing in...
                         </span>
                       ) : (
@@ -217,20 +304,7 @@ export default function LoginPage() {
                         </span>
                       )}
                     </Button>
-                  </div>
 
-                  <div className="relative mt-8">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-700" />
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="bg-gray-900/50 px-4 text-gray-400">
-                        Or
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="text-center">
                     <p className="text-gray-400">
                       Don&apos;t have an account?{" "}
                       <Link
