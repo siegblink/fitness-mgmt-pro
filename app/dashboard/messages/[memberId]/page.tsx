@@ -1,10 +1,10 @@
-import { createServerClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageForm } from "@/components/message-form";
-import { MessageCircle, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { MessageForm } from "@/components/message-form";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { createServerClient } from "@/lib/supabase/server";
 
 interface MemberChatPageProps {
   params: Promise<{

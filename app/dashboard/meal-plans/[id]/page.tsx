@@ -1,6 +1,16 @@
+import {
+  ArrowLeft,
+  Calendar,
+  Edit,
+  Trash2,
+  UserPlus,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import DashboardLayout from "@/components/dashboard-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,17 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  ArrowLeft,
-  Edit,
-  Trash2,
-  UserPlus,
-  Calendar,
-  Users,
-} from "lucide-react";
-import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function MealPlanDetailPage({
   params,
@@ -104,12 +104,7 @@ export default async function MealPlanDetailPage({
         {/* Header */}
         <div className="space-y-4">
           <div className="flex flex-col md:flex-row items-start gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex-shrink-0"
-              asChild
-            >
+            <Button variant="ghost" size="sm" className="flex-shrink-0" asChild>
               <Link href="/dashboard/meal-plans">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
@@ -284,17 +279,15 @@ export default async function MealPlanDetailPage({
                             Ingredients:
                           </p>
                           <div className="flex flex-wrap gap-1">
-                            {meal.ingredients.map(
-                              (ingredient: string, index: number) => (
-                                <Badge
-                                  key={index}
-                                  variant="outline"
-                                  className="text-xs"
-                                >
-                                  {ingredient}
-                                </Badge>
-                              ),
-                            )}
+                            {meal.ingredients.map((ingredient: string) => (
+                              <Badge
+                                key={ingredient}
+                                variant="outline"
+                                className="text-xs"
+                              >
+                                {ingredient}
+                              </Badge>
+                            ))}
                           </div>
                         </div>
                       )}

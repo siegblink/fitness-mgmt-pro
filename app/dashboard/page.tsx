@@ -1,6 +1,17 @@
+import {
+  Activity,
+  Dumbbell,
+  MessageCircle,
+  Plus,
+  Target,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import DashboardLayout from "@/components/dashboard-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,18 +19,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Users,
-  Dumbbell,
-  TrendingUp,
-  MessageCircle,
-  Plus,
-  Activity,
-  Target,
-} from "lucide-react";
-import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function DashboardPage() {
   const supabase = await createClient();

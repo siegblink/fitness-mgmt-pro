@@ -1,6 +1,17 @@
+import {
+  Calendar,
+  Mail,
+  MoreHorizontal,
+  Search,
+  TrendingUp,
+  UserPlus,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import DashboardLayout from "@/components/dashboard-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,19 +19,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  Users,
-  Search,
-  Mail,
-  Calendar,
-  TrendingUp,
-  MoreHorizontal,
-  UserPlus,
-} from "lucide-react";
-import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function MembersPage() {
   const supabase = await createClient();
@@ -51,7 +51,7 @@ export default async function MembersPage() {
 
   // Fetch member profiles separately
   let memberAssignments = rawAssignments || [];
-  let assignmentsError = rawError;
+  const assignmentsError = rawError;
 
   if (rawAssignments && rawAssignments.length > 0) {
     // Get all member IDs

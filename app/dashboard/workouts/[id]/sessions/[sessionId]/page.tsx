@@ -1,6 +1,9 @@
+import { ArrowLeft, Clock, Dumbbell, Edit, Hash, Weight } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import DashboardLayout from "@/components/dashboard-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,10 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Edit, Dumbbell, Clock, Hash, Weight } from "lucide-react";
-import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
 interface WorkoutExercise {
   id?: string;

@@ -1,10 +1,29 @@
 "use client";
 
+import {
+  Award,
+  BarChart3,
+  Calendar,
+  Dumbbell,
+  Target,
+  TrendingUp,
+} from "lucide-react";
 import Link from "next/link";
-
-import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import MemberDashboardLayout from "@/components/member-dashboard-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,8 +31,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -21,25 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  TrendingUp,
-  Calendar,
-  Dumbbell,
-  Target,
-  Award,
-  BarChart3,
-} from "lucide-react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-} from "recharts";
+import { createClient } from "@/lib/supabase/client";
 
 interface ProgressData {
   date: string;
@@ -92,7 +91,7 @@ export default function MemberProgressPage() {
           const chartData = progress.map((entry) => ({
             date: new Date(entry.completed_at).toLocaleDateString(),
             weight: entry.weight_used_kg || 0,
-            reps: Number.parseInt(entry.reps_completed) || 0,
+            reps: Number.parseInt(entry.reps_completed, 10) || 0,
             exercise: entry.exercise?.name || "Unknown",
             sets: entry.sets_completed || 0,
           }));

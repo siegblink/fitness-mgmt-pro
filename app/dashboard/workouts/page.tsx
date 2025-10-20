@@ -1,6 +1,21 @@
+import {
+  Calendar,
+  Copy,
+  Dumbbell,
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Trash2,
+  UserPlus,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import DashboardLayout from "@/components/dashboard-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,9 +23,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,20 +30,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dumbbell,
-  Search,
-  Plus,
-  Calendar,
-  Users,
-  MoreHorizontal,
-  Edit,
-  Copy,
-  Eye,
-  UserPlus,
-  Trash2,
-} from "lucide-react";
-import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function WorkoutPlansPage() {
   const supabase = await createClient();

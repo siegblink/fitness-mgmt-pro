@@ -1,6 +1,9 @@
+import { ArrowLeft, Calendar, Dumbbell, Edit, Plus, Users } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import DashboardLayout from "@/components/dashboard-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,10 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Edit, Users, Calendar, Plus, Dumbbell } from "lucide-react";
-import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
 interface Exercise {
   id: string;
@@ -139,12 +139,7 @@ export default async function WorkoutPlanPage({
         {/* Header */}
         <div className="space-y-4">
           <div className="flex flex-col md:flex-row items-start gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex-shrink-0"
-              asChild
-            >
+            <Button variant="ghost" size="sm" className="flex-shrink-0" asChild>
               <Link href="/dashboard/workouts">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
@@ -390,25 +385,21 @@ export default async function WorkoutPlanPage({
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {memberAssignments.map(
-                  (assignment: MemberAssignment, index: number) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-muted/50"
-                    >
-                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-sm font-medium text-primary">
-                          {assignment.member?.full_name
-                            ?.charAt(0)
-                            .toUpperCase()}
-                        </span>
-                      </div>
-                      <span className="font-medium">
-                        {assignment.member?.full_name}
+                {memberAssignments.map((assignment: MemberAssignment) => (
+                  <div
+                    key={assignment.id}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-muted/50"
+                  >
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="text-sm font-medium text-primary">
+                        {assignment.member?.full_name?.charAt(0).toUpperCase()}
                       </span>
                     </div>
-                  ),
-                )}
+                    <span className="font-medium">
+                      {assignment.member?.full_name}
+                    </span>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>

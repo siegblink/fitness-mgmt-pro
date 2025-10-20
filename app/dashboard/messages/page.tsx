@@ -1,9 +1,9 @@
-import { createServerClient } from "@/lib/supabase/server";
+import { MessageCircle, Plus, Search, Users } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, MessageCircle, Users } from "lucide-react";
-import Link from "next/link";
+import { createServerClient } from "@/lib/supabase/server";
 
 export default async function MessagesPage() {
   const supabase = await createServerClient();

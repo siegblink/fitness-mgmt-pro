@@ -1,25 +1,24 @@
 "use client";
 
-import type React from "react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
-
-import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
 import {
-  LayoutDashboard,
   Dumbbell,
-  TrendingUp,
-  MessageCircle,
-  Settings,
+  LayoutDashboard,
   LogOut,
   Menu,
-  X,
+  MessageCircle,
+  Settings,
+  TrendingUp,
   User,
+  X,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
 
 interface MemberDashboardLayoutProps {
   children: React.ReactNode;
@@ -65,6 +64,14 @@ export default function MemberDashboardLayout({
         <div
           className="fixed inset-0 z-40 bg-black/50 lg:hidden"
           onClick={() => setSidebarOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              setSidebarOpen(false);
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Close sidebar"
         />
       )}
 

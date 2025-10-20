@@ -1,10 +1,22 @@
 "use client";
 
-import type React from "react";
-import { useState, useEffect } from "react";
+import {
+  ArrowLeft,
+  Dumbbell,
+  Info,
+  Plus,
+  Save,
+  Search,
+  X,
+  Zap,
+} from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import type React from "react";
+import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,17 +24,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -31,18 +32,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
-  ArrowLeft,
-  Plus,
-  Search,
-  X,
-  Info,
-  Dumbbell,
-  Zap,
-  Save,
-} from "lucide-react";
-import Link from "next/link";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { createClient } from "@/lib/supabase/client";
 
 interface Exercise {
   id: string;
@@ -335,8 +335,8 @@ export default function EditWorkoutSessionPage({
         .update({
           name: formData.name,
           description: formData.description,
-          day_of_week: parseInt(formData.day_of_week),
-          week_number: parseInt(formData.week_number),
+          day_of_week: Number.parseInt(formData.day_of_week, 10),
+          week_number: Number.parseInt(formData.week_number, 10),
         })
         .eq("id", sessionId);
 
@@ -483,7 +483,11 @@ export default function EditWorkoutSessionPage({
                     </SelectTrigger>
                     <SelectContent>
                       {Array.from({ length: 12 }, (_, i) => (
-                        <SelectItem key={i + 1} value={(i + 1).toString()}>
+                        <SelectItem
+                          // biome-ignore lint/suspicious/noArrayIndexKey: Static week numbers 1-12
+                          key={i + 1}
+                          value={(i + 1).toString()}
+                        >
                           Week {i + 1}
                         </SelectItem>
                       ))}
@@ -676,7 +680,7 @@ export default function EditWorkoutSessionPage({
                             value={workoutExercise.sets}
                             onChange={(e) =>
                               updateExercise(workoutExercise.exercise_id, {
-                                sets: parseInt(e.target.value) || 1,
+                                sets: Number.parseInt(e.target.value, 10) || 1,
                               })
                             }
                             className="h-8"
@@ -708,7 +712,7 @@ export default function EditWorkoutSessionPage({
                             onChange={(e) =>
                               updateExercise(workoutExercise.exercise_id, {
                                 weight_kg: e.target.value
-                                  ? parseFloat(e.target.value)
+                                  ? Number.parseFloat(e.target.value)
                                   : undefined,
                               })
                             }
@@ -723,7 +727,8 @@ export default function EditWorkoutSessionPage({
                             onChange={(e) =>
                               updateExercise(workoutExercise.exercise_id, {
                                 rest_seconds:
-                                  parseInt(e.target.value) || undefined,
+                                  Number.parseInt(e.target.value, 10) ||
+                                  undefined,
                               })
                             }
                             className="h-8"

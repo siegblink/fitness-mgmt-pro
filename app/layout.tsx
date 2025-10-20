@@ -1,6 +1,6 @@
-import type React from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import type React from "react";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/theme-context";
 

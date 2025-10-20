@@ -1,11 +1,13 @@
 "use client";
 
-import type React from "react";
-
-import { useState, useEffect, use } from "react";
+import { ArrowLeft, Loader2, Plus, Trash2, X } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import type React from "react";
+import { use, useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -13,10 +15,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -24,9 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, X, Trash2, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { Textarea } from "@/components/ui/textarea";
+import { createClient } from "@/lib/supabase/client";
 
 const COMMON_GOALS = [
   "Weight Loss",
@@ -274,7 +273,7 @@ export default function EditMealPlanPage({
         .update({
           name: formData.name,
           description: formData.description,
-          duration_days: Number.parseInt(formData.duration_days),
+          duration_days: Number.parseInt(formData.duration_days, 10),
           dietary_type: formData.dietary_type,
           goals: formData.goals,
           updated_at: new Date().toISOString(),
@@ -294,7 +293,7 @@ export default function EditMealPlanPage({
           description: meal.description,
           ingredients: meal.ingredients,
           instructions: meal.instructions,
-          calories: meal.calories ? Number.parseInt(meal.calories) : null,
+          calories: meal.calories ? Number.parseInt(meal.calories, 10) : null,
           protein_grams: meal.protein_grams
             ? Number.parseFloat(meal.protein_grams)
             : null,
@@ -472,10 +471,12 @@ export default function EditMealPlanPage({
                   placeholder="Add custom goal..."
                   value={customGoal}
                   onChange={(e) => setCustomGoal(e.target.value)}
-                  onKeyPress={(e) =>
-                    e.key === "Enter" &&
-                    (e.preventDefault(), handleAddCustomGoal())
-                  }
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddCustomGoal();
+                    }
+                  }}
                 />
                 <Button
                   type="button"
@@ -529,7 +530,7 @@ export default function EditMealPlanPage({
                     onChange={(e) =>
                       setCurrentMeal((prev) => ({
                         ...prev,
-                        day_number: Number.parseInt(e.target.value),
+                        day_number: Number.parseInt(e.target.value, 10),
                       }))
                     }
                   />
@@ -595,10 +596,12 @@ export default function EditMealPlanPage({
                     placeholder="Add ingredient..."
                     value={currentIngredient}
                     onChange={(e) => setCurrentIngredient(e.target.value)}
-                    onKeyPress={(e) =>
-                      e.key === "Enter" &&
-                      (e.preventDefault(), handleAddIngredient())
-                    }
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddIngredient();
+                      }
+                    }}
                   />
                   <Button
                     type="button"
@@ -611,9 +614,9 @@ export default function EditMealPlanPage({
                 {currentMeal.ingredients &&
                   currentMeal.ingredients.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {currentMeal.ingredients.map((ingredient, index) => (
+                      {currentMeal.ingredients.map((ingredient) => (
                         <Badge
-                          key={index}
+                          key={ingredient}
                           variant="secondary"
                           className="gap-1"
                         >

@@ -22,6 +22,7 @@ export default function MessagesLoading() {
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
             {[...Array(6)].map((_, i) => (
               <div
+                // biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton loader
                 key={i}
                 className={`flex ${i % 3 === 0 ? "justify-end" : "justify-start"}`}
               >

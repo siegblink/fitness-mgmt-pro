@@ -1,8 +1,8 @@
-import { createServerClient } from "@/lib/supabase/server";
+import { Clock, MessageCircle, User } from "lucide-react";
 import { redirect } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { MessageCircle, User, Clock } from "lucide-react";
 import { MessageForm } from "@/components/message-form";
+import { Button } from "@/components/ui/button";
+import { createServerClient } from "@/lib/supabase/server";
 
 export default async function MemberMessagesPage() {
   const supabase = await createServerClient();

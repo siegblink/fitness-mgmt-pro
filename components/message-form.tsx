@@ -1,12 +1,11 @@
 "use client";
 
+import { Send } from "lucide-react";
+import { useRouter } from "next/navigation";
 import type React from "react";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 interface MessageFormProps {
   receiverId: string;

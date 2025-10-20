@@ -1,3 +1,4 @@
+import { Dumbbell, Mail } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -5,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Dumbbell, Mail } from "lucide-react";
 
 export default function SignUpSuccessPage() {
   return (

@@ -1,8 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { BarChart3, Dumbbell, Target, TrendingUp, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import DashboardLayout from "@/components/dashboard-layout";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -17,22 +30,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Users, Dumbbell, Target, BarChart3 } from "lucide-react";
-import {
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
+import { createClient } from "@/lib/supabase/client";
 
 interface MemberProgress {
+  member_id: string;
   member_name: string;
   total_workouts: number;
   total_sets: number;
@@ -93,7 +94,8 @@ export default function TrainerAnalyticsPage() {
             .gte(
               "completed_at",
               new Date(
-                Date.now() - Number.parseInt(timeRange) * 24 * 60 * 60 * 1000,
+                Date.now() -
+                  Number.parseInt(timeRange, 10) * 24 * 60 * 60 * 1000,
               ).toISOString(),
             );
 
@@ -113,6 +115,7 @@ export default function TrainerAnalyticsPage() {
 
             if (!memberProgressMap.has(entry.member_id)) {
               memberProgressMap.set(entry.member_id, {
+                member_id: entry.member_id,
                 member_name: memberName,
                 total_workouts: 0,
                 total_sets: 0,
@@ -121,7 +124,9 @@ export default function TrainerAnalyticsPage() {
               });
             }
 
-            const memberData = memberProgressMap.get(entry.member_id)!;
+            const memberData = memberProgressMap.get(entry.member_id);
+            if (!memberData) return;
+
             memberData.total_sets += entry.sets_completed || 0;
             memberData.total_workouts += 1;
 
@@ -379,10 +384,10 @@ export default function TrainerAnalyticsPage() {
                           name: "Inactive",
                           value: stats.totalMembers - stats.activeMembers,
                         },
-                      ].map((entry, index) => (
+                      ].map((entry) => (
                         <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
+                          key={entry.name}
+                          fill={COLORS[entry.name === "Active" ? 0 : 1]}
                         />
                       ))}
                     </Pie>
@@ -408,9 +413,9 @@ export default function TrainerAnalyticsPage() {
           <CardContent>
             {memberProgress.length > 0 ? (
               <div className="space-y-4">
-                {memberProgress.map((member, index) => (
+                {memberProgress.map((member) => (
                   <div
-                    key={index}
+                    key={member.member_id}
                     className="flex items-center justify-between p-4 rounded-lg border"
                   >
                     <div className="flex items-center gap-4">

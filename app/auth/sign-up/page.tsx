@@ -1,8 +1,18 @@
 "use client";
 
+import {
+  Activity,
+  ArrowRight,
+  Award,
+  Dumbbell,
+  Target,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type React from "react";
-
-import { createClient } from "@/lib/supabase/client";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,18 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dumbbell,
-  Activity,
-  TrendingUp,
-  Users,
-  ArrowRight,
-  Target,
-  Award,
-} from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");

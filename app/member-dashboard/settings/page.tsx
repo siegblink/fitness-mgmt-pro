@@ -1,6 +1,21 @@
+import {
+  Bell,
+  Clock,
+  Download,
+  Dumbbell,
+  Eye,
+  Globe,
+  Key,
+  Settings,
+  Shield,
+  Smartphone,
+  Trash2,
+  User,
+} from "lucide-react";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import MemberDashboardLayout from "@/components/member-dashboard-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,10 +23,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -19,20 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Settings,
-  Bell,
-  Shield,
-  User,
-  Dumbbell,
-  Eye,
-  Smartphone,
-  Clock,
-  Globe,
-  Download,
-  Trash2,
-  Key,
-} from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function MemberSettingsPage() {
   const supabase = await createClient();

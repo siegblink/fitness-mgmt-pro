@@ -1,6 +1,9 @@
+import { Calendar, Dumbbell, Play, Target, User } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import MemberDashboardLayout from "@/components/member-dashboard-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,11 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Dumbbell, Calendar, User, Play, Target } from "lucide-react";
-import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
 interface WorkoutSession {
   id: string;

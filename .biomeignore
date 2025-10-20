@@ -3,6 +3,7 @@ node_modules/
 bun.lock
 package-lock.json
 yarn.lock
+pnpm-lock.yaml
 
 # Build outputs
 .next/
@@ -15,19 +16,8 @@ build/
 *.db
 *.sqlite
 
-# Configuration files
-*.json
+# Environment files
 .env*
-.gitignore
-.eslintrc*
-tsconfig.json
-postcss.config.*
-tailwind.config.*
-
-# Documentation
-*.md
-README*
-CHANGELOG*
 
 # Logs
 *.log
@@ -46,3 +36,7 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Git files
+.git/
+.gitignore

@@ -1,5 +1,20 @@
 "use client";
 
+import {
+  Activity,
+  Award,
+  BarChart3,
+  Dumbbell,
+  Heart,
+  MessageCircle,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Users,
+  Zap,
+} from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,25 +23,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Dumbbell,
-  Users,
-  TrendingUp,
-  MessageCircle,
-  Sparkles,
-  Zap,
-  Activity,
-  Target,
-  Award,
-  BarChart3,
-  Heart,
-} from "lucide-react";
-import Link from "next/link";
-import { useState, useEffect } from "react";
 
 export default function HomePage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState<number | null>(null);
+  const [isHovered, setIsHovered] = useState<string | null>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -187,13 +187,13 @@ export default function HomePage() {
 
         {/* Features Grid */}
         <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6 mb-20">
-          {features.map((feature, index) => (
+          {features.map((feature) => (
             <Card
-              key={index}
+              key={feature.title}
               className={`relative bg-gray-900/80 border-gray-800 backdrop-blur-sm hover:border-gray-600 transition-all duration-300 cursor-pointer group hover:-translate-y-2 hover:shadow-2xl overflow-hidden ${
-                isHovered === index ? "shadow-2xl border-gray-600" : ""
+                isHovered === feature.title ? "shadow-2xl border-gray-600" : ""
               }`}
-              onMouseEnter={() => setIsHovered(index)}
+              onMouseEnter={() => setIsHovered(feature.title)}
               onMouseLeave={() => setIsHovered(null)}
             >
               {/* Background gradient effect */}
@@ -249,9 +249,9 @@ export default function HomePage() {
                 "Track member progress and analytics",
                 "Communicate with members",
                 "Manage exercise library",
-              ].map((item, i) => (
+              ].map((item) => (
                 <div
-                  key={i}
+                  key={item}
                   className="flex items-center gap-3 text-gray-300 hover:text-blue-400 transition-colors duration-200 group/item"
                 >
                   <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full group-hover/item:animate-pulse" />
@@ -278,9 +278,9 @@ export default function HomePage() {
                 "View detailed exercise instructions",
                 "Message your trainer",
                 "Monitor your fitness journey",
-              ].map((item, i) => (
+              ].map((item) => (
                 <div
-                  key={i}
+                  key={item}
                   className="flex items-center gap-3 text-gray-300 hover:text-green-400 transition-colors duration-200 group/item"
                 >
                   <div className="w-2 h-2 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full group-hover/item:animate-pulse" />

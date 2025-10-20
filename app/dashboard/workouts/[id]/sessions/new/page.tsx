@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function ExercisePreview({ exercise }: { exercise: Exercise }) {
   return (
@@ -69,9 +69,12 @@ function ExercisePreview({ exercise }: { exercise: Exercise }) {
     </Dialog>
   );
 }
+
+import { ArrowLeft, Dumbbell, Info, Plus, Search, X, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import DashboardLayout from "@/components/dashboard-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -79,17 +82,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -98,8 +90,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Search, X, Info, Dumbbell, Zap } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { createClient } from "@/lib/supabase/client";
 
 // Common workout presets
 const WORKOUT_PRESETS = [
@@ -109,6 +110,7 @@ const WORKOUT_PRESETS = [
   { label: "3x8-12", sets: 3, reps: "8-12", rest: 60 },
   { label: "4x6-8", sets: 4, reps: "6-8", rest: 90 },
 ];
+
 import Link from "next/link";
 
 interface Exercise {
@@ -248,8 +250,8 @@ export default function NewWorkoutSessionPage({
           workout_plan_id: workoutPlanId,
           name: formData.name,
           description: formData.description,
-          day_of_week: Number.parseInt(formData.day_of_week),
-          week_number: Number.parseInt(formData.week_number),
+          day_of_week: Number.parseInt(formData.day_of_week, 10),
+          week_number: Number.parseInt(formData.week_number, 10),
         })
         .select()
         .single();
@@ -357,7 +359,11 @@ export default function NewWorkoutSessionPage({
                     </SelectTrigger>
                     <SelectContent>
                       {Array.from({ length: 12 }, (_, i) => (
-                        <SelectItem key={i + 1} value={(i + 1).toString()}>
+                        <SelectItem
+                          // biome-ignore lint/suspicious/noArrayIndexKey: Static week numbers 1-12
+                          key={i + 1}
+                          value={(i + 1).toString()}
+                        >
                           Week {i + 1}
                         </SelectItem>
                       ))}
@@ -550,7 +556,7 @@ export default function NewWorkoutSessionPage({
                             value={workoutExercise.sets}
                             onChange={(e) =>
                               updateExercise(workoutExercise.exercise_id, {
-                                sets: Number.parseInt(e.target.value) || 1,
+                                sets: Number.parseInt(e.target.value, 10) || 1,
                               })
                             }
                             className="h-8"
@@ -597,7 +603,8 @@ export default function NewWorkoutSessionPage({
                             onChange={(e) =>
                               updateExercise(workoutExercise.exercise_id, {
                                 rest_seconds:
-                                  Number.parseInt(e.target.value) || undefined,
+                                  Number.parseInt(e.target.value, 10) ||
+                                  undefined,
                               })
                             }
                             className="h-8"

@@ -1,10 +1,10 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import DashboardLayout from "@/components/dashboard-layout";
-import EditWorkoutPlanForm from "./components/edit-workout-plan-form";
-import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import DashboardLayout from "@/components/dashboard-layout";
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/server";
+import EditWorkoutPlanForm from "./components/edit-workout-plan-form";
 
 export default async function EditWorkoutPlanPage({
   params,

@@ -34,6 +34,7 @@ export default function MessagesLoading() {
                 <div className="space-y-1 mb-6">
                   {[...Array(3)].map((_, i) => (
                     <div
+                      // biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton loader
                       key={i}
                       className="flex items-center space-x-3 p-3 rounded-lg"
                     >
@@ -52,6 +53,7 @@ export default function MessagesLoading() {
                 <div className="space-y-1">
                   {[...Array(4)].map((_, i) => (
                     <div
+                      // biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton loader
                       key={i}
                       className="flex items-center space-x-3 p-3 rounded-lg"
                     >

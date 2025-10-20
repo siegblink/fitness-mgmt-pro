@@ -1,6 +1,16 @@
+import {
+  Calendar,
+  Clock,
+  Mail,
+  MapPin,
+  Phone,
+  User,
+  UserCheck,
+} from "lucide-react";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import MemberDashboardLayout from "@/components/member-dashboard-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,17 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  User,
-  Mail,
-  Phone,
-  Calendar,
-  UserCheck,
-  MapPin,
-  Clock,
-} from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function MemberProfilePage() {
   const supabase = await createClient();

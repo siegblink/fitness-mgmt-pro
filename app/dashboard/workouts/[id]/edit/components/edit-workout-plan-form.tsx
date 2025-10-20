@@ -1,10 +1,12 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
+import { Plus, X } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import type React from "react";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,10 +14,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -23,9 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Plus, X } from "lucide-react";
-import Link from "next/link";
+import { Textarea } from "@/components/ui/textarea";
+import { createClient } from "@/lib/supabase/client";
 
 const COMMON_GOALS = [
   "Weight Loss",
@@ -102,7 +101,7 @@ export default function EditWorkoutPlanForm({
         .update({
           name: formData.name,
           description: formData.description,
-          duration_weeks: Number.parseInt(formData.duration_weeks),
+          duration_weeks: Number.parseInt(formData.duration_weeks, 10),
           difficulty_level: formData.difficulty_level,
           goals: formData.goals,
         })
@@ -235,9 +234,12 @@ export default function EditWorkoutPlanForm({
               placeholder="Add custom goal..."
               value={customGoal}
               onChange={(e) => setCustomGoal(e.target.value)}
-              onKeyPress={(e) =>
-                e.key === "Enter" && (e.preventDefault(), handleAddCustomGoal())
-              }
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddCustomGoal();
+                }
+              }}
             />
             <Button
               type="button"
