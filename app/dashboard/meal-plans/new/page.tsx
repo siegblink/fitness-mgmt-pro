@@ -529,7 +529,7 @@ export default function NewMealPlanPage() {
                 {currentMeal.ingredients &&
                   currentMeal.ingredients.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {currentMeal.ingredients.map((ingredient) => (
+                      {currentMeal.ingredients.map((ingredient, index) => (
                         <Badge
                           key={ingredient}
                           variant="secondary"
