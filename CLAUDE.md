@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-- `bun run dev` - Start development server on http://localhost:3000
+- `bun run dev` - Start development server with Turbopack on http://localhost:3000
 - `bun run build` - Build the application for production
 - `bun start` - Start production server
 - `bun run lint` - Check code quality with Biome
