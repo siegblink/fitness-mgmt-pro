@@ -61,7 +61,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="min-h-screen bg-background">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div
+        <button
+          type="button"
           className="fixed inset-0 z-40 bg-black/50 lg:hidden"
           onClick={() => setSidebarOpen(false)}
           onKeyDown={(e) => {
@@ -69,8 +70,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               setSidebarOpen(false);
             }
           }}
-          role="button"
-          tabIndex={0}
           aria-label="Close sidebar"
         />
       )}
