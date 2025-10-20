@@ -70,3 +70,4 @@ The application follows these patterns:
 - **Analytics Dashboard**: Performance metrics and insights for trainers
 - **Session Tracking**: Detailed workout session recording and analysis
 - Everytime you're done testing to check if there are development errors after running a process at port 3001, stop that running process. Then, leave the process running at port 3000.
+- After doing code changes, always execute `bun format:fix` and `bun lint:fix` to fix formatting and catch any linting issues.
