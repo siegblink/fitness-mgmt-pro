@@ -26,7 +26,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import {
   InputGroup,
   InputGroupAddon,
@@ -181,7 +186,7 @@ export default function LoginPage() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                  <div className="flex flex-col gap-6">
+                  <FieldGroup>
                     {/* Email Field */}
                     <Field data-invalid={!!errors.email}>
                       <FieldLabel
@@ -208,10 +213,12 @@ export default function LoginPage() {
                           />
                         </InputGroup>
                       </div>
-                      <FieldError
-                        errors={[errors.email]}
-                        className="text-red-400"
-                      />
+                      {errors.email && (
+                        <FieldError
+                          errors={[errors.email]}
+                          className="text-red-400"
+                        />
+                      )}
                     </Field>
 
                     {/* Password Field */}
@@ -225,7 +232,7 @@ export default function LoginPage() {
                         </FieldLabel>
                         <Link
                           href="/auth/forgot-password"
-                          className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                          className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
                           tabIndex={-1}
                         >
                           Forgot password?
@@ -267,10 +274,12 @@ export default function LoginPage() {
                           </InputGroupAddon>
                         </InputGroup>
                       </div>
-                      <FieldError
-                        errors={[errors.password]}
-                        className="text-red-400"
-                      />
+                      {errors.password && (
+                        <FieldError
+                          errors={[errors.password]}
+                          className="text-red-400"
+                        />
+                      )}
                     </Field>
 
                     {/* Server Error */}
@@ -314,7 +323,7 @@ export default function LoginPage() {
                         Create free account
                       </Link>
                     </p>
-                  </div>
+                  </FieldGroup>
                 </form>
               </CardContent>
             </Card>
