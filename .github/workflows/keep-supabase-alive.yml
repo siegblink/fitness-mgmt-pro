@@ -10,8 +10,31 @@ jobs:
   ping-supabase:
     runs-on: ubuntu-latest
     steps:
-      - name: Query Supabase Database
+      - name: Check secrets are configured
         run: |
-          curl -f -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/exercises?select=*&limit=1" \
+          if [ -z "${{ secrets.SUPABASE_URL }}" ]; then
+            echo "::error::SUPABASE_URL secret is not configured"
+            exit 1
+          fi
+          if [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            echo "::error::SUPABASE_ANON_KEY secret is not configured"
+            exit 1
+          fi
+          echo "✓ Secrets are configured"
+
+      - name: Ping Supabase Database
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "HTTP Status: $http_code"
+
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✓ Supabase is alive and responding"
+          else
+            echo "::error::Supabase returned HTTP $http_code"
+            exit 1
+          fi
